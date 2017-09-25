@@ -1,0 +1,90 @@
+environment:
+  matrix:
+    - PYTHON: "C:\\Python34"
+      PYTHON_VERSION: "3.4.4"
+      PYTHON_ARCH: "32"
+
+platform: x86
+
+configuration: Release
+
+init:
+  - cmd: ver
+  - cmd: ECHO Processor architecture - %PROCESSOR_ARCHITECTURE%
+  - cmd: wmic OS get OSArchitecture
+
+  # Utilise pre-installed MinGw for make
+  - ps: $env:PATH = 'C:\MinGW\msys\1.0\bin;C:\MinGW\mingw32\bin;C:\MinGW\bin;' + $env:PATH
+
+  # As AppVeyor has multiple python install, check which one uses by default
+  - cmd: ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%
+  - cmd: python --version
+  - cmd: python -c "import struct; print(struct.calcsize('P') * 8)"
+  - cmd: python -c "import sys; print(sys.executable)"
+
+  # Set the relevant Python and pip location to the path
+  - cmd: set PATH=%PYTHON%;%PYTHON%\scripts;%PATH%
+  - cmd: ECHO Path - %PATH%
+
+  # Verify the new default python
+  - cmd: python --version
+  - cmd: python -c "import struct; print(struct.calcsize('P') * 8)"
+  - cmd: python -c "import sys; print(sys.executable)"
+  - cmd: pip --version
+
+  # Check out installed python packages
+  - cmd: pip freeze
+
+install:
+  # Fix for PyQt not being installed in correct directory: https://github.com/appveyor/ci/issues/363
+  - cmd: REG ADD HKCU\Software\Python\PythonCore\3.4\InstallPath /f /ve /t REG_SZ /d C:\Python34
+
+  # Download PyQt5 with 10 min time out, rename to pyqt5_installer.exe, and install
+  - ps: Start-FileDownload 'http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe' -FileName pyqt5_installer.exe -Timeout 600000
+  - cmd: pyqt5_installer.exe /S
+
+  # Install python dependencies, can't use requirements.txt as PyQt needs 3.5+
+  - cmd: pip install pyinstaller==3.3
+  #- cmd: pip install -r requirements.txt
+  # zmq is an ipython dependency, older version needed due to pyinstaller incompatibility
+  # https://github.com/pyinstaller/pyinstaller/issues/2147#issuecomment-274367270
+  - cmd: pip install pyzmq==15.3.0
+  - cmd: pip install qtconsole
+  - cmd: pip install matplotlib
+  #- cmd: pip install setuptools
+
+  # Check installed packages
+  - cmd: pip freeze
+  - cmd: python -c "import PyQt5"
+  - cmd: python -c "import PyQt5.Qsci"
+
+  # Build mu using PyInstaller, rename dist folder and executable with timestamp
+  - cmd: pyinstaller package\pyinstaller.spec
+  - ps: Rename-Item -path .\dist upload
+  - cmd: dir upload
+  - ps: Rename-Item .\upload\test.exe test_$(get-date -f yyyy-MM-dd_HH_mm)_$($env:APPVEYOR_REPO_BRANCH)_$($env:APPVEYOR_REPO_COMMIT.subString(0,7)).exe
+
+# Not a project with an msbuild file, build done at install.
+build: None
+
+# Makefiles support provided by MinGW, which does POSIX translations, so run tests natively as well
+#test_script: None
+
+# Push artifacts to s3 bucket and list all
+before_deploy:
+  - ps: Get-ChildItem .\upload\*.exe | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName mu-s3-deployment }
+  - ps: foreach($artifactName in $artifacts.keys) { $artifacts[$artifactName] }
+
+# Deploy build to Amazon S3 bucket
+deploy:
+  name: mu-s3-deployment
+  provider: S3
+  access_key_id: AKIAJYJV7NN6HVHCX5NQ
+  secret_access_key:
+    secure: PlLCQKTcf9IzBXpEnXUxbJifb0usS7qcghnM0VxBTX0IL3C975JPidrYjP39ge7P
+  bucket: mu-builds
+  region: eu-west-2
+  set_public: true
+  folder: pyinstaller
+  on:
+    branch: [master]
