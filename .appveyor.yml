@@ -45,24 +45,27 @@ install:
 
   # Install python dependencies, can't use requirements.txt as PyQt needs 3.5+
   - cmd: pip install pyinstaller==3.3
-  #- cmd: pip install -r requirements.txt
   # zmq is an ipython dependency, older version needed due to pyinstaller incompatibility
   # https://github.com/pyinstaller/pyinstaller/issues/2147#issuecomment-274367270
   - cmd: pip install pyzmq==15.3.0
   - cmd: pip install qtconsole
   - cmd: pip install matplotlib
-  #- cmd: pip install setuptools
+  - cmd: pip install setuptools
 
   # Check installed packages
   - cmd: pip freeze
   - cmd: python -c "import PyQt5"
   - cmd: python -c "import PyQt5.Qsci"
 
-  # Build mu using PyInstaller, rename dist folder and executable with timestamp
-  - cmd: pyinstaller package\pyinstaller.spec
+  # Build test code using PyInstaller
+  - cmd: pyinstaller package\pyqt5_test.spec
+  - cmd: pyinstaller package\qtconsole_test.spec
+
+  # Rename dist folder and executable with timestamp
   - ps: Rename-Item -path .\dist upload
   - cmd: dir upload
-  - ps: Rename-Item .\upload\test.exe test_$(get-date -f yyyy-MM-dd_HH_mm)_$($env:APPVEYOR_REPO_BRANCH)_$($env:APPVEYOR_REPO_COMMIT.subString(0,7)).exe
+  - ps: Rename-Item .\upload\pyqt5_test.exe pyqt5_test$(get-date -f yyyy-MM-dd_HH_mm)_$($env:APPVEYOR_REPO_BRANCH)_$($env:APPVEYOR_REPO_COMMIT.subString(0,7)).exe
+  - ps: Rename-Item .\upload\qtconsole_test.exe qtconsole_test$(get-date -f yyyy-MM-dd_HH_mm)_$($env:APPVEYOR_REPO_BRANCH)_$($env:APPVEYOR_REPO_COMMIT.subString(0,7)).exe
 
 # Not a project with an msbuild file, build done at install.
 build: None

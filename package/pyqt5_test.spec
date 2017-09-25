@@ -19,15 +19,15 @@ binary_files = []
 #binary_files += [(os.path.join(pyqt_dlls, 'qminimal.dll'), 'platforms')]
 
 
-a = Analysis(['../test.py'],
+a = Analysis(['../pyqt5_test.py'],
              pathex=['../', pyqt_dir, pyqt_dlls],
              binaries=binary_files,
              datas=[],
-             hiddenimports = ['ipykernel.datapub'],
+             hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
              # Back ends for qtconsole and matplotlib
-             excludes=['PySide', 'PyQt4'],
+             excludes=[],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
              cipher=block_cipher)
@@ -41,7 +41,7 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='test',
+          name='pyqt5_test',
           strip=False,
           # There is an issue with PyQt and UPX compression:
           # https://github.com/pyinstaller/pyinstaller/issues/2659
@@ -52,7 +52,7 @@ exe = EXE(pyz,
           icon=None)
 
 app = BUNDLE(exe,
-         name='test.app',
+         name='pyqt5_test.app',
          icon=None,
          bundle_identifier=None,
          info_plist={
@@ -66,4 +66,4 @@ app = BUNDLE(exe,
 #               a.datas,
 #               strip=None,
 #               upx=False,
-#               name='test')
+#               name='pyqt5_test')
