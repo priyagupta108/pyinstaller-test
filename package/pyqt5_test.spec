@@ -48,7 +48,7 @@ exe = EXE(pyz,
           upx=False,
           # False hides the CLI window, useful ON to debug
           console=True,
-          debug=True,
+          debug=1,
           icon=None)
 
 app = BUNDLE(exe,

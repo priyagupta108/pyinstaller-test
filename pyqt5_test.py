@@ -25,6 +25,7 @@ from PyQt5 import QtWidgets
 
 
 def main():
+    print("Python sys.executable:\n\t%s" % sys.executable)
     print("Python sys.path:\n\t%s" % "\n\t".join(sys.path))
     print('Qt5 Libraries path:\n\t%s' % \
             QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.LibrariesPath))
