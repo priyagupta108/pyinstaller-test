@@ -44,7 +44,8 @@ install:
   - cmd: pyqt5_installer.exe /S
 
   # Install python dependencies, can't use requirements.txt as PyQt needs 3.5+
-  - cmd: pip install pyinstaller==3.3
+  #- cmd: pip install pyinstaller==3.3
+  - cmd: pip install git+git://github.com/pyinstaller/pyinstaller.git@4f4b6c83f36f19e521ad6d32e8bbb70cef7b806a
   # zmq is an ipython dependency, older version needed due to pyinstaller incompatibility
   # https://github.com/pyinstaller/pyinstaller/issues/2147#issuecomment-274367270
   - cmd: pip install pyzmq==15.3.0
@@ -90,4 +91,4 @@ deploy:
   set_public: true
   folder: pyinstaller
   on:
-    branch: [master]
+    branch: [master, new_test]
