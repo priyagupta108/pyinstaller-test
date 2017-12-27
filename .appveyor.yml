@@ -42,6 +42,8 @@ install:
   # Download PyQt5 with 10 min time out, rename to pyqt5_installer.exe, and install
   - ps: Start-FileDownload 'http://downloads.sourceforge.net/project/pyqt/PyQt5/PyQt-5.5.1/PyQt5-5.5.1-gpl-Py3.4-Qt5.5.1-x32.exe' -FileName pyqt5_installer.exe -Timeout 600000
   - cmd: pyqt5_installer.exe /S
+  - cmd: tree C:\python34\lib\site-packages\PyQt5 /F /A
+  - cmd: tree C:\python34\lib\site-packages\PyQt5 /A
 
   # Install python dependencies, can't use requirements.txt as PyQt needs 3.5+
   #- cmd: pip install pyinstaller==3.3
