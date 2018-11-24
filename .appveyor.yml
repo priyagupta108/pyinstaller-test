@@ -92,6 +92,6 @@ deploy:
   bucket: mu-builds
   region: eu-west-2
   set_public: true
-  folder: pyinstaller
+  folder: tests/pyinstaller
   on:
     branch: [master, new_test]
