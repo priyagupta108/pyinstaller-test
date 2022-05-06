@@ -1,0 +1,30 @@
+name: Test Python Tk
+
+on: [push, pull_request]
+
+jobs:
+  tests-poetry:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+      fail-fast: false
+    name: Py ${{ matrix.python-version }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Prepare Ubuntu xvfb
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxkbcommon-x11-0 xvfb
+      - name: Run tk script (closes itself after 5 seconds) - Ubuntu
+        if: runner.os == 'Linux'
+        run: xvfb-run python tk_min.py
+      - name: Run tk script (closes itself after 5 seconds)
+        if: runner.os != 'Linux'
+        run: python tk_min.py
