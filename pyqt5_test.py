@@ -52,6 +52,11 @@ def main():
     label.setWindowTitle("Hello World from PyQt5")
     label.resize(300, 300)
     label.show()
+
+    # Close the app automatically after 10 seconds
+    QtCore.QTimer.singleShot(10 * 1000, QtCore.QCoreApplication.quit)
+
+    # Open window
     app.exec_()
 
 
