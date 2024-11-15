@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-13]
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8.19", "3.8.10", "3.8.17", 3.8.12", "3.9.13", "3.9.19", "3.10.11", "3.10.14", "3.10.12", "3.10.9"]
       fail-fast: false
     name: Py ${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -18,14 +18,7 @@ jobs:
         uses: priyagupta108/setup-python@create_release
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Prepare Ubuntu xvfb
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libxkbcommon-x11-0 xvfb
-      - name: Run tk script (closes itself after 5 seconds) - Ubuntu
-        if: runner.os == 'Linux'
-        run: xvfb-run python tk_min.py
-      - name: Run tk script (closes itself after 5 seconds)
+     
+      - name: Run tk script
         if: runner.os != 'Linux'
         run: python tk_min.py
